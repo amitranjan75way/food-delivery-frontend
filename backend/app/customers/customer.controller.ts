@@ -25,7 +25,6 @@ export const getMenuItems = asyncHandler(async (req: Request, res: Response) => 
  * @throws {HttpError} If the restaurant list cannot be fetched.
  */
 export const getRestaurants = asyncHandler(async (req: Request, res: Response) => {
-  console.log("helo this si controler called")
   const restaurants = await restaurantService.getRestaurantList();
   res.send(createResponse(restaurants, "Restaurant fetched successfully"));
 });
