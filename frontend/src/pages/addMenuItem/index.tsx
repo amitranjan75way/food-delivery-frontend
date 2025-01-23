@@ -1,6 +1,8 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import styles from './index.module.css';
+import { useAddMenuItemMutation } from '../../services/api';
+import toast from 'react-hot-toast';
 
 interface FormData {
   name: string;
@@ -10,16 +12,27 @@ interface FormData {
 }
 
 const AddMenuItem: React.FC = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
+  const [addMenuItem, { isLoading, isError, error, isSuccess }] = useAddMenuItemMutation();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>();
 
-  const onSubmit = (data: FormData) => {
-    console.log(data); // Print the submitted data to console
+  const onSubmit = async (data: FormData) => {
+    try {
+      await addMenuItem(data).unwrap(); // `unwrap` gives direct access to the response or throws an error
+      reset(); // Reset form fields on success
+      toast.success('Menu item added successfully!');
+    } catch (err: any) {
+      console.error('Error adding menu item:', err);
+      toast.error('Failed to add menu item. Please try again.');
+    }
   };
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Add Menu Item</h1>
+
+      {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+        {/* Dish Name */}
         <div className={styles.formGroup}>
           <label htmlFor="name">Dish Name</label>
           <input
@@ -30,16 +43,21 @@ const AddMenuItem: React.FC = () => {
           {errors.name && <span className={styles.error}>{errors.name.message}</span>}
         </div>
 
+        {/* Price */}
         <div className={styles.formGroup}>
           <label htmlFor="price">Price ($)</label>
           <input
             type="number"
             id="price"
-            {...register('price', { required: 'Price is required', min: { value: 0, message: 'Price must be positive' } })}
+            {...register('price', { 
+              required: 'Price is required', 
+              min: { value: 0, message: 'Price must be positive' } 
+            })}
           />
           {errors.price && <span className={styles.error}>{errors.price.message}</span>}
         </div>
 
+        {/* Description */}
         <div className={styles.formGroup}>
           <label htmlFor="description">Description</label>
           <textarea
@@ -49,6 +67,7 @@ const AddMenuItem: React.FC = () => {
           />
         </div>
 
+        {/* Availability */}
         <div className={styles.formGroup}>
           <label htmlFor="isAvailable">
             <input
@@ -60,8 +79,19 @@ const AddMenuItem: React.FC = () => {
           </label>
         </div>
 
-        <button type="submit" className={styles.submitButton}>Add Item</button>
+        {/* Submit Button */}
+        <button 
+          type="submit" 
+          className={styles.submitButton}
+          disabled={isLoading} // Disable button during API call
+        >
+          {isLoading ? 'Adding...' : 'Add Item'}
+        </button>
       </form>
+
+      {/* Error or Success Messages */}
+      {isError && <p className={styles.error}>Failed to add menu item. Please try again.</p>}
+      {isSuccess && <p className={styles.success}>Menu item added successfully!</p>}
     </div>
   );
 };

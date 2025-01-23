@@ -34,6 +34,14 @@ export const api = createApi({
       }),
     }),
 
+    addMenuItem: builder.mutation({
+      query: (data) => ({
+        url: '/restaurant/add-item',
+        method: 'POST',
+        body: data
+      })
+    }),
+
 
   }),
 });
@@ -43,4 +51,5 @@ export const {
   useRegisterUserMutation,
   useGetRestaurantListQuery,
   useLoginUserMutation,
+  useAddMenuItemMutation
 } = api;
