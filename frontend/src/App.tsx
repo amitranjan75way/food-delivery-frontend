@@ -26,7 +26,6 @@ function App() {
           <Route path="/restaurant/addItem" element={<AddMenuItem />} />
         </Route>
       </Route>
-
     </Routes>
   );
 }
